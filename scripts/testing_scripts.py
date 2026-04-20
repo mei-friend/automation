@@ -12,7 +12,7 @@ def runtime_error(active_dom: dict, context_doms: list, **addargs):
     """
     template function
 
-    :param active_dom: dict containing {filename:Path/str?, notationtype:str, dom:etree.Element}
+    :param active_dom: dict containing {filename:Path/str?, dom:etree.Element}
     :type active_dom: dict
     :param context_doms: list containing dom dicts
     :type context_doms: list
@@ -34,7 +34,7 @@ def _template_function(active_dom: dict, context_doms: list, **addargs):
     """
     template function
 
-    :param active_dom: dict containing {filename:Path/str?, notationtype:str, dom:etree.Element}
+    :param active_dom: dict containing {filename:Path/str?, dom:etree.Element}
     :type active_dom: dict
     :param context_doms: list containing dom dicts
     :type context_doms: list
