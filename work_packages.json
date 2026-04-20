@@ -11,7 +11,8 @@
       }
     },
     "scripts": [
-      "script_collection.remove_all_sbs, script_collection.add_sbs_every_n"
+      "script_collection.remove_all_sbs",
+      "script_collection.add_sbs_every_n"
     ],
     "commitResult": true
   }

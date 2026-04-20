@@ -28,9 +28,26 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
     :rtype: int
     """
     try:
-        scripts_list = workpackage["scripts"]
+        raw_scripts = workpackage["scripts"]
     except KeyError as e:
         raise KeyError("Faulty workpackage, missing 'scripts'") from e
+
+    scripts_list = []
+    for script_entry in raw_scripts:
+        if not isinstance(script_entry, str):
+            raise TypeError(
+                "Faulty workpackage, 'scripts' entries must be strings"
+            )
+        # Accept either one script per list entry or accidental comma-separated entries.
+        scripts_list.extend(
+            [
+                script.strip()
+                for script in script_entry.split(",")
+                if script.strip()
+            ]
+        )
+    if not scripts_list:
+        raise ValueError("Faulty workpackage, 'scripts' cannot be empty")
 
     active_dom, tree = parse_and_wrap_dom(filepath)
 
@@ -47,7 +64,9 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
             mod: importlib.import_module(mod) for mod in modules_list
         }
     except ImportError as e:
-        raise NameError("Unknown module") from e
+        raise NameError(
+            f"Unknown module in scripts list: {', '.join(sorted(modules_list))}"
+        ) from e
     output_message_total = ""
     for script in scripts_list:
         module_path, _dot, func_name = script.rpartition(".")
@@ -58,9 +77,15 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
             )
         # scripts take active_dom:dict, context_dom:list[dict], params:dict
         try:
-            active_dom, output_message_current = current_func(
-                active_dom, context_doms, **params
-            )
+            script_result = current_func(active_dom, context_doms, **params)
+            if isinstance(script_result, tuple) and len(script_result) == 3:
+                active_dom, output_message_current, _summary_message = (
+                    script_result
+                )
+            else:
+                raise ValueError(
+                    f"Script {func_name} must return a tuple of length 3"
+                )
             output_message_total += f"Script {func_name} was succesful{", says:\n" + output_message_current if output_message_current else "."}\n\n"
         except TypeError as e:
             if "missing" in str(e):

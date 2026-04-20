@@ -27,7 +27,9 @@ def runtime_error(active_dom: dict, context_doms: list, **addargs):
 
     active_dom["dom"] = root
     output_message = ""
-    return active_dom, output_message
+    summary_message = ""
+
+    return active_dom, output_message, summary_message
 
 
 def _template_function(active_dom: dict, context_doms: list, **addargs):
@@ -47,4 +49,6 @@ def _template_function(active_dom: dict, context_doms: list, **addargs):
 
     active_dom["dom"] = root
     output_message = ""
-    return active_dom, output_message
+    summary_message = ""
+
+    return active_dom, output_message, summary_message

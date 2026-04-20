@@ -12,7 +12,7 @@ def add_sbs_every_n(
     active_dom: dict, context_doms: list, sbInterval: int, **addargs
 ):
     """
-    Adds `<sb>` every n measures
+    Adds `<sb>` (system beginning) elements every n measures
 
     :param active_dom: dict containing {filename:Path/str?, dom:etree.Element}
     :type active_dom: dict
@@ -76,35 +76,13 @@ def _template_function(active_dom: dict, context_doms: list, **addargs):
     :type context_doms: list
     :param addargs: Addional arguments that are unused
     """
-    output_message = ""
 
     root = active_dom["dom"]
 
     # xpath_result = root.xpath(".//mei:elem[@attrib='value']", namespaces=ns)
 
     active_dom["dom"] = root
+    output_message = ""
     summary_message = ""
 
     return active_dom, output_message, summary_message
-
-
-def getmnum(root: etree.Element):
-    """returns @n of last measure"""
-
-    measures = root.xpath("//mei:measure", namespaces=ns)
-    endings = root.xpath("//mei:ending", namespaces=ns)
-    has_pickup = measures[0].get("type", "no") == "pickup"
-
-    return (
-        measures[-1].get("n", "no_n"),
-        str(len(measures)),
-        str(len(measures) - int(len(endings) / 2) - has_pickup),
-    )
-
-
-def get_last_mnum(root: etree.Element):
-    """returns @n of last measure"""
-
-    measures = root.xpath("//mei:measure", namespaces=ns)
-
-    return int(measures[-1].get("n", "no_n"))
