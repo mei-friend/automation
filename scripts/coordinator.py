@@ -22,10 +22,10 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
     and calls the designated scripts on the parsed file.
 
     :param filepath: the file to be processed
-    :type filepath: str
     :param workpackage: the workpackage to be executed
-    :type workpackage: dict
-    :param addargs: arguments required for the workpackage
+    :param params: parameters required for the workpackage
+    :returns: 0 on success, 1 if a script fails
+    :rtype: int
     """
     try:
         scripts_list = workpackage["scripts"]
@@ -34,7 +34,7 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
 
     active_dom, tree = parse_and_wrap_dom(filepath)
 
-    # TODO differentiate sibling type
+    # E-LAUTE specific, returns empty list for now
     context_doms = get_context_doms(filepath)
 
     # scripts in the JSON is a list of module to function paths (dir.subdir.module.func)
@@ -63,7 +63,6 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
             )
             output_message_total += f"Script {func_name} was succesful{", says:\n" + output_message_current if output_message_current else "."}\n\n"
         except TypeError as e:
-            # "...missing 1 required positional argument: 'x'" -> params was missing key
             if "missing" in str(e):
                 # Extract argument names inside single quotes
                 missing_names = re.findall(r"'(.*?)'", str(e))
@@ -99,24 +98,24 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
 
 def get_context_doms(filepath: Path):
     """
-    return list of dicionaries [{filename:, dom:}] containing context_doms
-    E-LAUTE specific implementation: context_doms are always in the same repository
+    Return list of dictionaries containing context DOMs from the same directory as the active file.
+    E-LAUTE specific but could be adapted for other use cases.
 
     :param filepath: the filepath where to look for context_doms
-    :type filepath: Path
+    :returns: list of dicts with keys {"filename": str, "dom": etree._Element}
+    :rtype: list[dict]
     """
-
-    directory = filepath.parent
-    extension = ".mei"
-    print(f"Directory of context doms {directory}")
-    # 2. Find files with the same extension, excluding the original file, call wrapper
-    other_files = [
-        parse_and_wrap_dom(f)[0]
-        for f in directory.glob(f"*{extension}")
-        if f != filepath
-    ]
-
-    return other_files
+    # directory = filepath.parent
+    # extension = ".mei"
+    # print(f"Directory of context doms {directory}")
+    # # 2. Find files with the same extension, excluding the original file, call wrapper
+    # other_files = [
+    #     parse_and_wrap_dom(f)[0]
+    #     for f in directory.glob(f"*{extension}")
+    #     if f != filepath
+    # ]
+    # return other_files
+    return []
 
 
 def parse_and_wrap_dom(filepath: Path):
@@ -124,7 +123,6 @@ def parse_and_wrap_dom(filepath: Path):
     Parses a file and returns a tuple of the wrapped root element dict and the parsed tree.
 
     :param filepath: The filepath of the file to be parsed and wrapped
-    :type filepath: Path
     :returns: A tuple containing ({"filename": str, "dom": etree._Element}, etree._ElementTree)
     :rtype: tuple[dict, etree._ElementTree]
     """
@@ -137,9 +135,15 @@ def parse_and_wrap_dom(filepath: Path):
     }, tree
 
 
-def main(workpackage_id: str, filepath: str, addargs: list):
+def main(workpackage_id: str, filepath: str, addargs: str):
     """
-    Parses Arguments, selects file, calls coordinator on files with workpackage
+    Parse arguments, select file, and call coordinator on files with workpackage.
+
+    :param workpackage_id: the id of the workpackage to be executed
+    :param filepath: path to the file to be processed
+    :param addargs: additional arguments formatted as JSON, or None
+    :returns: 0 on success, 1 on workpackage execution failure, 2 if file not found
+    :rtype: int
     """
     print("We are in coodinator.main!")
     # TODO misses -nt --notationtype, -e --exclude
@@ -149,11 +153,12 @@ def main(workpackage_id: str, filepath: str, addargs: list):
     # TODO specify as arg
     with open(Path("central-repo", "work_packages.json")) as f:
         workpackages_list = json.load(f)
+    workpackage = None
     for candidate in workpackages_list:
         if candidate["id"] == workpackage_id:
             workpackage = candidate
             break
-    if not workpackage:
+    if workpackage is None:
         raise KeyError("Workpackage_id not found")
 
     dic_add_args = check_addargs_against_json(
@@ -180,12 +185,19 @@ def main(workpackage_id: str, filepath: str, addargs: list):
 
 
 def parse_addargs(addargs: str):
+    """
+    Parse and validate additional arguments from JSON string.
+
+    :param addargs: JSON string with curly brackets, or None
+    :returns: parsed arguments as a dictionary
+    :rtype: dict
+    """
     if addargs is None:
         return {}
     try:
         addargs_parsed = json.loads(addargs)
-        if not (addargs_parsed, dict):
-            raise TypeError
+        if not isinstance(addargs_parsed, dict):
+            raise TypeError("Parsed JSON is not a dict")
     except Exception as e:
         raise ValueError(
             "Addargs needs to be valid JSON with top layer in curly brackets (refer to template)"
@@ -195,13 +207,13 @@ def parse_addargs(addargs: str):
 
 def check_addargs_against_json(addargs_dic: dict, workpackage: dict):
     """
-    Checks parsed user input against required parameters in JSON
-    Uses defaults if not provided by user
+    Check parsed user input against required parameters in workpackage JSON.
+    Uses defaults if not provided by user.
 
     :param addargs_dic: parsed user input
-    :type addargs_dic: dict
     :param workpackage: the chosen workpackage from the JSON
-    :type workpackage: dict
+    :returns: dictionary with validated/converted arguments
+    :rtype: dict
     """
     params = workpackage["params"]
 
@@ -231,7 +243,14 @@ def check_addargs_against_json(addargs_dic: dict, workpackage: dict):
 
 
 def initialize_parser():
+    """
+    Initialize and return the argument parser.
+
+    :returns: configured ArgumentParser instance
+    :rtype: argparse.ArgumentParser
+    """
     # TODO misses -nt --notationtype, -e --exclude
+    # TODO add parsing of workpackage JSON file as argument, for now hardcoded to central-repo/work_packages.json
     parser = argparse.ArgumentParser(
         description="Coordinates the execution of scripts in the workpackage on filepath"
     )
@@ -246,7 +265,7 @@ def initialize_parser():
     parser.add_argument(
         "-a",
         "--addargs",
-        help="Additional arguments required by the workpackage, formatted key=value",
+        help="Additional arguments required by the workpackage, formatted as JSON",
     )
     return parser
 
