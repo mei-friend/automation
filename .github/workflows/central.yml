@@ -48,7 +48,7 @@ jobs:
         with:
           python-version: "3.13"
           cache: "pip"
-          cache-dependency-path: "central-repo/scripts/requirements-dispatch.txt"
+          cache-dependency-path: "central-repo/scripts/requirements.txt"
 
       # 4. Install dependencies
       - name: Install Python dependencies
