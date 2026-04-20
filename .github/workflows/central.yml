@@ -11,6 +11,10 @@ on:
         description: "The filepath of the file to be processed"
         required: true
         type: string
+      workpackage_json: # either link to file or json as string
+        description: "The workpackage json as string"
+        required: false # should not be optional, but needs to be changed in mei-friend first
+        type: string
       addargs:
         description: "Additional arguments required by the work package"
         required: false
