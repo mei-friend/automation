@@ -60,12 +60,12 @@ jobs:
       - name: Run central coordinator script
         run: |
           addargs='${{ inputs.addargs }}'
-          SCRIPT_PATH="$GITHUB_WORKSPACE/central-repo/scripts/coordinator.py"
+          coordinator_path="$GITHUB_WORKSPACE/central-repo/scripts/coordinator.py"
 
           if [ -n "$addargs" ]; then
-            python central-repo/scripts/coordinator.py -w ${{ inputs.workpackage_id }} -f ${{ inputs.filepath }} -a "$addargs"
+            python coordinator_path -w ${{ inputs.workpackage_id }} -f ${{ inputs.filepath }} -a "$addargs"
           else
-            python central-repo/scripts/coordinator.py -w ${{ inputs.workpackage_id }} -f ${{ inputs.filepath }}
+            python coordinator_path -w ${{ inputs.workpackage_id }} -f ${{ inputs.filepath }}
           fi
 
       # 6. Commit changes
