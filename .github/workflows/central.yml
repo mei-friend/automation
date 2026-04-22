@@ -29,18 +29,24 @@ on:
 jobs:
   run-shared-script:
     runs-on: ubuntu-latest
+    permissions: # taken from https://github.com/stefanzweifel/git-auto-commit-action#usage
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+
     steps:
       # 1. Checkout caller repository
       - name: Checkout caller repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ${{ github.repository }}
           ref: ${{ github.ref }}
           path: caller-repo
+          persist-credentials: true # needed for pushing changes back to caller repo according to siehe oben
 
       # 2. Checkout shared repository (this repo)
       - name: Checkout central repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: mei-friend/automation
           ref: main
