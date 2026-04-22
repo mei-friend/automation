@@ -37,7 +37,7 @@ jobs:
     steps:
       # 1. Checkout caller repository
       - name: Checkout caller repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           repository: ${{ github.repository }}
           ref: ${{ github.ref }}
@@ -46,7 +46,7 @@ jobs:
 
       # 2. Checkout shared repository (this repo)
       - name: Checkout central repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           repository: mei-friend/automation
           ref: main
