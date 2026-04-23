@@ -2,12 +2,13 @@
   {
     "id": "add_sbs",
     "label": "Add system beginnings",
-    "description": "Removes existing <sb/> elements first and then adds new ones every n measures, where n is determined by the sbInterval parameter.",
+    "description": "Removes all existing <sb/> elements first and then adds new ones every n measures, where n is determined by the sbInterval parameter.",
     "userFacing": true,
     "params": {
       "sbInterval": {
         "type": "Number",
-        "default": 5
+        "default": 5,
+        "description": "Places an <sb/> element every n measures, where n is determined by this parameter."
       }
     },
     "scripts": [
