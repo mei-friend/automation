@@ -1,0 +1,43 @@
+[
+  {
+    "id": "add_sbs",
+    "label": "Add system beginnings",
+    "description": "Removes all existing <sb/> elements first and then adds new ones every n measures, where n is determined by the sbInterval parameter.",
+    "userFacing": true,
+    "params": {
+      "sbInterval": {
+        "type": "Number",
+        "default": 5,
+        "description": "Places an <sb/> element every n measures, where n is determined by this parameter."
+      }
+    },
+    "scripts": [
+      "script_collection.remove_all_sbs",
+      "script_collection.add_sbs_every_n"
+    ],
+    "commitResult": true
+  },
+  {
+    "id": "another_work_package",
+    "label": "This is another work package with a longer label",
+    "description": "This is an awesome work package that does something really cool. It has a longer label and description to demonstrate that the fields can accommodate more text without any issues. But this text is still not long enough to really test the limits of the description field. Let's add some more text to make it even longer and see how it looks in the user interface. This work package is designed to show that the fields can handle a lot of text without any problems, and that the user interface can display it all in a readable way.",
+    "userFacing": true,
+    "params": {
+      "sbInterval": {
+        "type": "Number",
+        "default": 5,
+        "description": "Places an <sb/> element every n measures, where n is determined by this parameter."
+      },
+      "param2": {
+        "type": "String",
+        "default": "default_value",
+        "description": "This is a sample parameter for demonstration purposes. It has a default value and a description to show how parameters can be defined in a work package. The type of this parameter is String, which means it can accept any text input. The default value is optional, but it can be useful to provide a default value to guide users on what kind of input is expected for this parameter."
+      }
+    },
+    "scripts": [
+      "script_collection.remove_all_sbs",
+      "script_collection.add_sbs_every_n"
+    ],
+    "commitResult": true
+  }
+]
