@@ -18,7 +18,7 @@ JSON_TYPE_TO_PYTHON_TYPE = {"Number": int, "String": str}
 
 def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
     """
-    Parses filepath, loads the specefied workpackage from workpath
+    Parses the file path, loads the specified workpackage from the workpackage file
     and calls the designated scripts on the parsed file.
 
     :param filepath: the file to be processed
@@ -54,7 +54,7 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
     # E-LAUTE specific, returns empty list for now
     context_doms = get_context_doms(filepath)
 
-    # scripts in the JSON is a list of module to function paths (dir.subdir.module.func)
+    # scripts in the JSON is a list of module-to-function paths (dir.subdir.module.func)
     # modules_dic contains the path of the module as key (dir.subdir.module) and the loaded module as item
     modules_list = list(
         set([script.rpartition(".")[0] for script in scripts_list])
@@ -86,7 +86,11 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
                 raise ValueError(
                     f"Script {func_name} must return a tuple of length 3"
                 )
-            output_message_total += f"Script {func_name} was succesful{", says:\n" + output_message_current if output_message_current else "."}\n\n"
+            output_message_total += (
+                f"Script {func_name} was successful"
+                f"{', says:\n' + output_message_current if output_message_current else '.'}"
+                "\n\n"
+            )
         except TypeError as e:
             if "missing" in str(e):
                 # Extract argument names inside single quotes
@@ -100,7 +104,7 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
                 raise e
         except RuntimeError as e:
             output_message_total = (
-                f"Workpackage {workpackage['label']} failed. \nSee output of individual sripts or refer to Github Link above for further information.\n\n"
+                f"Workpackage {workpackage['label']} failed. \nSee output of individual scripts or refer to the GitHub link above for further information.\n\n"
                 + output_message_total
                 + f"Script {func_name} failed, says:\n{e}\n\nNo further scripts executed and no files changed"
             )
@@ -114,7 +118,7 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
                 f, encoding="UTF-8", pretty_print=True, xml_declaration=True
             )
     output_message_total = (
-        f"Workpackage {workpackage['label']} was succesful. \nSee output of individual sripts or refer to Github Link above for further information.\n\n"
+        f"Workpackage {workpackage['label']} was successful. \nSee output of individual scripts or refer to the GitHub link above for further information.\n\n"
         + output_message_total
     )
     write_to_console(output_message_total)
@@ -126,7 +130,7 @@ def get_context_doms(filepath: Path):
     Return list of dictionaries containing context DOMs from the same directory as the active file.
     E-LAUTE specific but could be adapted for other use cases.
 
-    :param filepath: the filepath where to look for context_doms
+    :param filepath: the file path where to look for context DOMs
     :returns: list of dicts with keys {"filename": str, "dom": etree._Element}
     :rtype: list[dict]
     """
@@ -145,9 +149,9 @@ def get_context_doms(filepath: Path):
 
 def parse_and_wrap_dom(filepath: Path):
     """
-    Parses a file and returns a tuple of the wrapped root element dict and the parsed tree.
+    Parse a file and return a tuple of the wrapped root element dict and the parsed tree.
 
-    :param filepath: The filepath of the file to be parsed and wrapped
+    :param filepath: The file path of the file to be parsed and wrapped
     :returns: A tuple containing ({"filename": str, "dom": etree._Element}, etree._ElementTree)
     :rtype: tuple[dict, etree._ElementTree]
     """
@@ -162,7 +166,7 @@ def parse_and_wrap_dom(filepath: Path):
 
 def main(workpackage_id: str, filepath: str, addargs: str):
     """
-    Parse arguments, select file, and call coordinator on files with workpackage.
+    Parse arguments, select a file, and call the coordinator on files with a workpackage.
 
     :param workpackage_id: the id of the workpackage to be executed
     :param filepath: path to the file to be processed
@@ -170,10 +174,10 @@ def main(workpackage_id: str, filepath: str, addargs: str):
     :returns: 0 on success, 1 on workpackage execution failure, 2 if file not found
     :rtype: int
     """
-    print("We are in coodinator.main!")
-    # TODO misses -nt --notationtype, -e --exclude
-    # For now assumes python coordinator.py filepath workpackage additional arguments
-    # TODO check for validity of workpackage x filetype, multiple files
+    print("We are in coordinator.main!")
+    # TODO missing -nt --notationtype, -e --exclude
+    # For now, assumes python coordinator.py filepath workpackage additional arguments.
+    # TODO check the validity of workpackage x filetype, multiple files
 
     # TODO specify as arg
     with open(Path("central-repo", "work_packages.json")) as f:
@@ -189,7 +193,7 @@ def main(workpackage_id: str, filepath: str, addargs: str):
     dic_add_args = check_addargs_against_json(
         parse_addargs(addargs), workpackage
     )
-    # hardcode 'caller-repo/' prefix to refer to caller (source) repository
+    # Hardcode 'caller-repo/' prefix to refer to the caller (source) repository.
     if filepath.startswith("caller-repo"):
         mei_path = Path(filepath)
     else:
@@ -213,7 +217,7 @@ def parse_addargs(addargs: str):
     """
     Parse and validate additional arguments from JSON string.
 
-    :param addargs: JSON string with curly brackets, or None
+    :param addargs: JSON string with curly braces, or None
     :returns: parsed arguments as a dictionary
     :rtype: dict
     """
@@ -225,14 +229,14 @@ def parse_addargs(addargs: str):
             raise TypeError("Parsed JSON is not a dict")
     except Exception as e:
         raise ValueError(
-            "Addargs needs to be valid JSON with top layer in curly brackets (refer to template)"
+            "Addargs needs to be valid JSON with a top-level object in curly braces (refer to the template)"
         ) from e
     return addargs_parsed
 
 
 def check_addargs_against_json(addargs_dic: dict, workpackage: dict):
     """
-    Check parsed user input against required parameters in workpackage JSON.
+    Check parsed user input against the required parameters in the workpackage JSON.
     Uses defaults if not provided by user.
 
     :param addargs_dic: parsed user input
@@ -247,7 +251,7 @@ def check_addargs_against_json(addargs_dic: dict, workpackage: dict):
     for key, value in params.items():
         if key in addargs_dic:
             if "type" not in value:
-                raise KeyError(f"Parameter {key} misses type")
+                raise KeyError(f"Parameter {key} is missing the type")
             try:
                 return_addargs[key] = JSON_TYPE_TO_PYTHON_TYPE[value["type"]](
                     addargs_dic[key]
@@ -275,9 +279,9 @@ def initialize_parser():
     :rtype: argparse.ArgumentParser
     """
     # TODO misses -nt --notationtype, -e --exclude
-    # TODO add parsing of workpackage JSON file as argument, for now hardcoded to central-repo/work_packages.json
+    # TODO add parsing of the workpackage JSON file as an argument; for now it is hardcoded to central-repo/work_packages.json
     parser = argparse.ArgumentParser(
-        description="Coordinates the execution of scripts in the workpackage on filepath"
+        description="Coordinates the execution of scripts in the workpackage on a file path"
     )
 
     parser.add_argument("-f", "--filepath", help="A specific filepath")
@@ -285,7 +289,7 @@ def initialize_parser():
         "-w",
         "--workpackage_id",
         required=True,
-        help="The id of the workpackage to be executed",
+        help="The ID of the workpackage to be executed",
     )
     parser.add_argument(
         "-a",

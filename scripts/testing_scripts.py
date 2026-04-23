@@ -16,7 +16,7 @@ def runtime_error(active_dom: dict, context_doms: list, **addargs):
     :type active_dom: dict
     :param context_doms: list containing dom dicts
     :type context_doms: list
-    :param addargs: Addional arguments that are unused
+    :param addargs: Additional arguments that are unused
     """
 
     root = active_dom["dom"]
@@ -40,7 +40,7 @@ def _template_function(active_dom: dict, context_doms: list, **addargs):
     :type active_dom: dict
     :param context_doms: list containing dom dicts
     :type context_doms: list
-    :param addargs: Addional arguments that are unused
+    :param addargs: Additional arguments that are unused
     """
 
     root = active_dom["dom"]
