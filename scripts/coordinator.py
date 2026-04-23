@@ -30,13 +30,13 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
     try:
         raw_scripts = workpackage["scripts"]
     except KeyError as e:
-        raise KeyError("Faulty workpackage, missing 'scripts'") from e
+        raise KeyError("Faulty work package, missing 'scripts'") from e
 
     scripts_list = []
     for script_entry in raw_scripts:
         if not isinstance(script_entry, str):
             raise TypeError(
-                "Faulty workpackage, 'scripts' entries must be strings"
+                "Faulty work package, 'scripts' entries must be strings"
             )
         # Accept either one script per list entry or accidental comma-separated entries.
         scripts_list.extend(
@@ -47,7 +47,7 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
             ]
         )
     if not scripts_list:
-        raise ValueError("Faulty workpackage, 'scripts' cannot be empty")
+        raise ValueError("Faulty work package, 'scripts' cannot be empty")
 
     active_dom, tree = parse_and_wrap_dom(filepath)
 
@@ -104,7 +104,7 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
                 raise e
         except RuntimeError as e:
             output_message_total = (
-                f"Workpackage {workpackage['label']} failed. \nSee output of individual scripts or refer to the GitHub link above for further information.\n\n"
+                f"Work package {workpackage['label']} failed. \nSee output of individual scripts or refer to the GitHub link above for further information.\n\n"
                 + output_message_total
                 + f"Script {func_name} failed, says:\n{e}\n\nNo further scripts executed and no files changed"
             )
@@ -118,7 +118,7 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
                 f, encoding="UTF-8", pretty_print=True, xml_declaration=True
             )
     output_message_total = (
-        f"Workpackage {workpackage['label']} was successful. \nSee output of individual scripts or refer to the GitHub link above for further information.\n\n"
+        f"Work package {workpackage['label']} was successful. \nSee output of individual scripts or refer to the GitHub link above for further information.\n\n"
         + output_message_total
     )
     write_to_console(output_message_total)
@@ -188,7 +188,7 @@ def main(workpackage_id: str, filepath: str, addargs: str):
             workpackage = candidate
             break
     if workpackage is None:
-        raise KeyError("Workpackage_id not found")
+        raise KeyError("Work package ID not found")
 
     dic_add_args = check_addargs_against_json(
         parse_addargs(addargs), workpackage
@@ -281,7 +281,7 @@ def initialize_parser():
     # TODO misses -nt --notationtype, -e --exclude
     # TODO add parsing of the workpackage JSON file as an argument; for now it is hardcoded to central-repo/work_packages.json
     parser = argparse.ArgumentParser(
-        description="Coordinates the execution of scripts in the workpackage on a file path"
+        description="Coordinates the execution of scripts in the work package on a file path"
     )
 
     parser.add_argument("-f", "--filepath", help="A specific filepath")
@@ -289,12 +289,12 @@ def initialize_parser():
         "-w",
         "--workpackage_id",
         required=True,
-        help="The ID of the workpackage to be executed",
+        help="The ID of the work package to be executed",
     )
     parser.add_argument(
         "-a",
         "--addargs",
-        help="Additional arguments required by the workpackage, formatted as JSON",
+        help="Additional arguments required by the work package, formatted as JSON",
     )
     return parser
 
