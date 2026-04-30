@@ -16,19 +16,18 @@ mei-friend (browser)
       │
       │  triggers via GitHub API (workflow_dispatch)
       ▼
-Caller repository           ← user's own repo, contains MEI files
-  .github/workflows/
-    caller.yml              ← thin relay, points to a central repo via `uses:`
+Caller repository               ← user's own repo, contains MEI files
+  .github/workflows/caller.yml  ← thin relay, points to a central repo via `uses:`
       │
       │  workflow_call
       ▼
 This repository  (mei-friend/automation)   ← you are here
-  .github/workflows/        ← reusable workflow definitions
-  scripts/                  ← Python processing scripts
+  .github/workflows/            ← reusable workflow definitions
+  scripts/                      ← Python processing scripts
       │
       │  checks out both repos, runs scripts, commits results back
       ▼
-Caller repository           ← results committed back here
+Caller repository               ← results committed back here
 ```
 
 Caller repositories created from the [caller template](https://github.com/mei-friend/caller-template) point at this repository by default. Project-specific central repositories (e.g. [E-LAUTE](https://github.com/e-laute/E-LAUTE_GH_Actions)) follow the same pattern but expose their own scripts and work packages.
@@ -42,8 +41,6 @@ automation/
 │
 ├── .github/workflows/
 │   └── central.yml                # Reusable workflow invoked by caller repos
-│                                  # (central_v2.yml is an in-progress successor;
-│                                  #  see "Workflow versions" below)
 │
 ├── scripts/
 │   ├── coordinator.py             # Parses the MEI file, runs the scripts in order, writes back
@@ -58,11 +55,11 @@ automation/
 └── update_secrets.sh              # Helper for managing repository secrets
 ```
 
-### Workflow versions
+<!-- ### Workflow versions
 
 `central.yml` is the workflow currently invoked by the caller template. `central_v2.yml` is an in-progress revision with a cleaner input schema (`work_package`, `parameters`) and is not yet wired up; once mei-friend's dispatch payload is updated to match, the caller template will be switched over.
 
----
+--- -->
 
 ## How the coordinator works
 
@@ -79,7 +76,7 @@ If any script raises a `RuntimeError`, execution stops immediately and no file i
 
 ## Work packages
 
-Work packages are JSON entries that describe a single named operation selectable in mei-friend. The shape is:
+Work packages are JSON entries that describe a single named operation ("work package") selectable in mei-friend. The shape is:
 
 ```json
 {
@@ -106,16 +103,16 @@ Work packages are JSON entries that describe a single named operation selectable
 |---|---|
 | `id` | Internal identifier, used as `workpackage_id` when triggering the workflow |
 | `label` | Display name shown in mei-friend |
-| `description` | Tooltip shown in mei-friend |
+| `description` | Description shown in mei-friend |
 | `userFacing` | Whether to show this work package in the mei-friend dropdown |
-| `params` | Parameters the user can fill in; each may have a `default` and a `type` (`"String"` or `"Number"`) |
+| `params` | Parameters the user can fill in; each may have a `default`, a `type` (`"String"` or `"Number"`) and a `description`m shown as a tooltip in mei-friend. |
 | `scripts` | Ordered list of `module.function` paths, executed in sequence |
 | `commitResult` | Whether to write the result back and commit it |
 
 The bundled [`work_packages.json`](work_packages.json) lists the default work packages provided by this repository.
 [`work_package_template.json`](work_package_template.json) is an annotated template for creating your own.
 
-To use a custom work package definition, host the JSON at a publicly accessible, CORS-enabled URL and paste that URL into mei-friend's **"Custom configuration"** field.
+To use a custom work package definition, host the JSON at a publicly accessible, CORS-enabled URL and paste that URL into mei-friend's **"Custom configuration"** field. For example your JSON could live in your caller repository itself (provided it's publicly accessible), or in a separate public repository for your project.
 
 ---
 
