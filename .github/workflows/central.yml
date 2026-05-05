@@ -13,7 +13,7 @@ on:
         type: string
       workpackage_json: # json as string
         description: "The work package json as a string"
-        required: false # should not be optional, but needs to be changed in mei-friend first
+        required: true
         type: string
       parameters:
         description: "Additional parameters filled out by the user"
