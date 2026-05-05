@@ -168,11 +168,14 @@ def parse_and_wrap_dom(filepath: Path):
     }, tree
 
 
-def main(work_package: str, filepath: str, parameters: str):
+def main(
+    workpackage_id: str, workpackage_json: str, filepath: str, parameters: str
+):
     """
     Parse arguments, select a file, and call the coordinator on files with a workpackage.
 
-    :param work_package: the work package to be executed, as a json string
+    :param workpackage_id: the id of the work package to be executed
+    :param workpackage_json: the work package json as a string
     :param filepath: path to the file to be processed
     :param parameters: additional parameters formatted as JSON, or None
     :returns: 0 on success, 1 on workpackage execution failure, 2 if file not found
@@ -288,12 +291,12 @@ def initialize_parser():
     parser.add_argument(
         "-id",
         "--workpackage_id",
+        required=True,
         help="The id of the work package to be executed, as specified in the work package JSON file. ",
     )
     parser.add_argument(
         "-wp",
         "--workpackage_json",
-        required=True,
         help="The work package to be executed, as a json string. ",
     )
     parser.add_argument(
@@ -309,7 +312,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     sys.exit(
         main(
-            work_package=args.work_package,
+            workpackage_id=args.workpackage_id,
+            workpackage=args.workpackage_json,
             filepath=args.filepath,
             parameters=args.parameters,
         )
