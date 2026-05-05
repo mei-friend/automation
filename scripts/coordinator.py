@@ -16,22 +16,18 @@ from utils import edit_appInfo, write_to_console
 JSON_TYPE_TO_PYTHON_TYPE = {"Number": int, "String": str}
 
 
-def execute_workpackage(
-    filepath: Path, workpackage_id: str, workpackage_json: str, params: dict
-):
+def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
     """
     Parses the file path, loads the specified workpackage from the workpackage file
     and calls the designated scripts on the parsed file.
 
     :param filepath: the file to be processed
-    :param workpackage_id: the id of the workpackage to be executed
-    :param workpackage_json: the workpackage JSON as a string
+    :param workpackage: the workpackage as a dict
     :param params: parameters required for the workpackage
     :returns: 0 on success, 1 if a script fails
     :rtype: int
     """
     try:
-        workpackage = json.loads(workpackage_json)
         raw_scripts = workpackage["scripts"]
     except KeyError as e:
         raise KeyError("Faulty work package, missing 'scripts'") from e
@@ -190,30 +186,28 @@ def main(
     #     if candidate["id"] == workpackage_id:
     #         workpackage = candidate
     #         break
-    if workpackage is None:
-        raise KeyError("Work package not found")
+    try:
+        workpackage = json.loads(workpackage_json)
+    except json.JSONDecodeError:
+        print(f"::error::Invalid JSON for workpackage: {workpackage_json}")
+        return 1
 
     dic_add_args = check_addargs_against_json(
-        parse_addargs(addargs), workpackage
+        parse_addargs(parameters), workpackage
     )
     # Hardcode 'caller-repo/' prefix to refer to the caller (source) repository.
     if filepath.startswith("caller-repo"):
         mei_path = Path(filepath)
     else:
         mei_path = Path("caller-repo", filepath)
-    # mei_path = Path(filepath)
     print(f"Checking file: {mei_path}")
     if not mei_path.is_file():
         print(f"::error::File not found: '{mei_path}'")
         return 2
 
-    # try:
     execute_workpackage(mei_path, workpackage, dic_add_args)
     print("::notice::Process completed successfully")
     return 0
-    # except Exception as e:
-    #   print(f"::error::Failed to process file: {e}")
-    #  return 1
 
 
 def parse_addargs(addargs: str):
@@ -313,7 +307,7 @@ if __name__ == "__main__":
     sys.exit(
         main(
             workpackage_id=args.workpackage_id,
-            workpackage=args.workpackage_json,
+            workpackage_json=args.workpackage_json,
             filepath=args.filepath,
             parameters=args.parameters,
         )
