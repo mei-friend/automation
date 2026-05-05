@@ -11,12 +11,12 @@ on:
         description: "The filepath of the file to be processed"
         required: true
         type: string
-      work_package: # json as string
-        description: "The work package json as string"
+      workpackage_json: # either link to file or json as string
+        description: "The workpackage json as string"
         required: false # should not be optional, but needs to be changed in mei-friend first
         type: string
-      parameters:
-        description: "Additional parameters filled out by the user"
+      addargs:
+        description: "Additional arguments required by the work package"
         required: false
         type: string
         default: ""
@@ -65,12 +65,12 @@ jobs:
       # 5. Run the shared script *on the caller repo*
       - name: Run central coordinator script
         run: |
-          parameters='${{ inputs.parameters }}'
+          addargs='${{ inputs.addargs }}'
 
-          if [ -n "$parameters" ]; then
-            python "$GITHUB_WORKSPACE/central-repo/scripts/coordinator.py" -w ${{ inputs.work_package }} -f ${{ inputs.filepath }} -a "$parameters"
+          if [ -n "$addargs" ]; then
+            python "$GITHUB_WORKSPACE/central-repo/scripts/coordinator.py" -w ${{ inputs.workpackage_id }} -f ${{ inputs.filepath }} -a "$addargs"
           else
-            python "$GITHUB_WORKSPACE/central-repo/scripts/coordinator.py" -w ${{ inputs.work_package }} -f ${{ inputs.filepath }}
+            python "$GITHUB_WORKSPACE/central-repo/scripts/coordinator.py" -w ${{ inputs.workpackage_id }} -f ${{ inputs.filepath }}
           fi
 
       # 6. Commit changes in caller repository

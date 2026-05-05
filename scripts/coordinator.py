@@ -16,18 +16,22 @@ from utils import edit_appInfo, write_to_console
 JSON_TYPE_TO_PYTHON_TYPE = {"Number": int, "String": str}
 
 
-def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
+def execute_workpackage(
+    filepath: Path, workpackage_id: str, workpackage_json: str, params: dict
+):
     """
     Parses the file path, loads the specified workpackage from the workpackage file
     and calls the designated scripts on the parsed file.
 
     :param filepath: the file to be processed
-    :param workpackage: the workpackage to be executed
+    :param workpackage_id: the id of the workpackage to be executed
+    :param workpackage_json: the workpackage JSON as a string
     :param params: parameters required for the workpackage
     :returns: 0 on success, 1 if a script fails
     :rtype: int
     """
     try:
+        workpackage = json.loads(workpackage_json)
         raw_scripts = workpackage["scripts"]
     except KeyError as e:
         raise KeyError("Faulty work package, missing 'scripts'") from e
@@ -164,31 +168,27 @@ def parse_and_wrap_dom(filepath: Path):
     }, tree
 
 
-def main(workpackage_id: str, filepath: str, addargs: str):
+def main(work_package: str, filepath: str, parameters: str):
     """
     Parse arguments, select a file, and call the coordinator on files with a workpackage.
 
-    :param workpackage_id: the id of the workpackage to be executed
+    :param work_package: the work package to be executed, as a json string
     :param filepath: path to the file to be processed
-    :param addargs: additional arguments formatted as JSON, or None
+    :param parameters: additional parameters formatted as JSON, or None
     :returns: 0 on success, 1 on workpackage execution failure, 2 if file not found
     :rtype: int
     """
     print("We are in coordinator.main!")
-    # TODO missing -nt --notationtype, -e --exclude
-    # For now, assumes python coordinator.py filepath workpackage additional arguments.
-    # TODO check the validity of workpackage x filetype, multiple files
 
-    # TODO specify as arg
-    with open(Path("central-repo", "work_packages.json")) as f:
-        workpackages_list = json.load(f)
-    workpackage = None
-    for candidate in workpackages_list:
-        if candidate["id"] == workpackage_id:
-            workpackage = candidate
-            break
+    # with open(Path("central-repo", "work_packages.json")) as f:
+    #     workpackages_list = json.load(f)
+    # workpackage = None
+    # for candidate in workpackages_list:
+    #     if candidate["id"] == workpackage_id:
+    #         workpackage = candidate
+    #         break
     if workpackage is None:
-        raise KeyError("Work package ID not found")
+        raise KeyError("Work package not found")
 
     dic_add_args = check_addargs_against_json(
         parse_addargs(addargs), workpackage
@@ -286,15 +286,20 @@ def initialize_parser():
 
     parser.add_argument("-f", "--filepath", help="A specific filepath")
     parser.add_argument(
-        "-w",
+        "-id",
         "--workpackage_id",
-        required=True,
-        help="The ID of the work package to be executed",
+        help="The id of the work package to be executed, as specified in the work package JSON file. ",
     )
     parser.add_argument(
-        "-a",
-        "--addargs",
-        help="Additional arguments required by the work package, formatted as JSON",
+        "-wp",
+        "--workpackage_json",
+        required=True,
+        help="The work package to be executed, as a json string. ",
+    )
+    parser.add_argument(
+        "-p",
+        "--parameters",
+        help="Parameters required by the work package, formatted as JSON",
     )
     return parser
 
@@ -304,8 +309,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     sys.exit(
         main(
-            workpackage_id=args.workpackage_id,
+            work_package=args.work_package,
             filepath=args.filepath,
-            addargs=args.addargs,
+            parameters=args.parameters,
         )
     )
