@@ -30,7 +30,7 @@ This repository  (mei-friend/automation)   ← you are here
 Caller repository               ← results committed back here
 ```
 
-Caller repositories created from the [caller template](https://github.com/mei-friend/caller-template) point at this repository by default. Project-specific central repositories (e.g. [E-LAUTE](https://github.com/e-laute/E-LAUTE_GH_Actions)) follow the same pattern but expose their own scripts and work packages.
+Caller repositories created from the [caller template](https://github.com/mei-friend/caller-template) point at this repository by default. Project-specific central repositories (e.g. [E-LAUTE](https://github.com/e-laute/automation)) follow the same pattern but expose their own scripts and work packages.
 
 ---
 
@@ -80,34 +80,34 @@ Work packages are JSON entries that describe a single named operation ("work pac
 
 ```json
 {
-    "id": "add_sbs",
-    "label": "Add system beginnings",
-    "description": "Adds <sb/> every n measures.",
-    "userFacing": true,
-    "params": {
-        "sbInterval": {
-            "type": "Number",
-            "default": 5,
-            "description": "Places an <sb/> element every n measures."
-        }
-    },
-    "scripts": [
-        "script_collection.remove_all_sbs",
-        "script_collection.add_sbs_every_n"
-    ],
-    "commitResult": true
+  "id": "add_sbs",
+  "label": "Add system beginnings",
+  "description": "Adds <sb/> every n measures.",
+  "userFacing": true,
+  "params": {
+    "sbInterval": {
+      "type": "Number",
+      "default": 5,
+      "description": "Places an <sb/> element every n measures."
+    }
+  },
+  "scripts": [
+    "script_collection.remove_all_sbs",
+    "script_collection.add_sbs_every_n"
+  ],
+  "commitResult": true
 }
 ```
 
-| Field | Purpose |
-|---|---|
-| `id` | Internal identifier, used as `workpackage_id` when triggering the workflow |
-| `label` | Display name shown in mei-friend |
-| `description` | Description shown in mei-friend |
-| `userFacing` | Whether to show this work package in the mei-friend dropdown |
-| `params` | Parameters the user can fill in; each may have a `default`, a `type` (`"String"` or `"Number"`) and a `description`m shown as a tooltip in mei-friend. |
-| `scripts` | Ordered list of `module.function` paths, executed in sequence |
-| `commitResult` | Whether to write the result back and commit it |
+| Field          | Purpose                                                                                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`           | Internal identifier, used as `workpackage_id` when triggering the workflow                                                                             |
+| `label`        | Display name shown in mei-friend                                                                                                                       |
+| `description`  | Description shown in mei-friend                                                                                                                        |
+| `userFacing`   | Whether to show this work package in the mei-friend dropdown                                                                                           |
+| `params`       | Parameters the user can fill in; each may have a `default`, a `type` (`"String"` or `"Number"`) and a `description`m shown as a tooltip in mei-friend. |
+| `scripts`      | Ordered list of `module.function` paths, executed in sequence                                                                                          |
+| `commitResult` | Whether to write the result back and commit it                                                                                                         |
 
 The bundled [`work_packages.json`](work_packages.json) lists the default work packages provided by this repository.
 [`work_package_template.json`](work_package_template.json) is an annotated template for creating your own.
@@ -138,6 +138,7 @@ def my_script(active_dom: dict, context_doms: list, **params):
 ```
 
 Rules:
+
 - Raise `RuntimeError` to abort the work package and leave the file unchanged.
 - Do not write to disk — the coordinator handles that.
 - Use `**params` to absorb any parameters from the JSON the function does not use.
