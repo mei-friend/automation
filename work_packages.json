@@ -1,20 +1,23 @@
-[
-  {
-    "id": "add_sbs",
-    "label": "Add system beginnings",
-    "description": "Removes all existing <sb/> elements first and then adds new ones every n measures, where n is determined by the sbInterval parameter.",
-    "userFacing": true,
-    "params": {
-      "sbInterval": {
-        "type": "Number",
-        "default": 5,
-        "description": "Places an <sb/> element every n measures, where n is determined by this parameter."
-      }
-    },
-    "scripts": [
-      "script_collection.remove_all_sbs",
-      "script_collection.add_sbs_every_n"
-    ],
-    "commitResult": true
-  }
-]
+{
+  "central_repository": "mei-friend/automation/.github/workflows/central.yml@main",
+  "work_packages": [
+    {
+      "id": "add_sbs",
+      "label": "Add system beginnings",
+      "description": "Removes all existing <sb/> elements first and then adds new ones every n measures, where n is determined by the sbInterval parameter.",
+      "userFacing": true,
+      "params": {
+        "sbInterval": {
+          "type": "Number",
+          "default": 5,
+          "description": "Places an <sb/> element every n measures, where n is determined by this parameter."
+        }
+      },
+      "scripts": [
+        "script_collection.remove_all_sbs",
+        "script_collection.add_sbs_every_n"
+      ],
+      "commitResult": true
+    }
+  ]
+}
