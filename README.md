@@ -1,7 +1,8 @@
 # mei-friend automation — Central Repository
 
 This is the **default central repository** for the [mei-friend](https://mei-friend.github.io) GitHub Actions automation setup.
-It contains the reusable workflow and processing scripts that operate on MEI files stored in caller repositories created from the [caller template](https://github.com/mei-friend/caller-template).
+It contains the runner shell script that gets invoked by the caller workflowand the processing scripts that operate on MEI files stored in caller repositories created from the [caller template](https://github.com/mei-friend/caller-template).
+Also provided are an example work package definition as well as a template and a helper script for managing repository secrets.
 
 For an end-to-end description of the automation mechanism, see the [mei-friend automation documentation](https://mei-friend.github.io/docs/advanced/automation/).
 
@@ -17,15 +18,14 @@ mei-friend (browser)
       │  triggers via GitHub API (workflow_dispatch)
       ▼
 Caller repository               ← user's own repo, contains MEI files
-  .github/workflows/caller.yml  ← thin relay, points to a central repo via `uses:`
+  .github/workflows/caller.yml  ← checks out both repos, runs the central shell script
       │
-      │  workflow_call
+      │  bash central-repo/scripts/run_automation.sh
       ▼
 This repository  (mei-friend/automation)   ← you are here
-  .github/workflows/            ← reusable workflow definitions
+  automation/run_automation.sh          ← entry point: sets up Python environment and runs coordinator.py
   scripts/                      ← Python processing scripts
       │
-      │  checks out both repos, runs scripts, commits results back
       ▼
 Caller repository               ← results committed back here
 ```
@@ -39,27 +39,19 @@ Caller repositories created from the [caller template](https://github.com/mei-fr
 ```
 automation/
 │
-├── .github/workflows/
-│   └── central.yml                # Reusable workflow invoked by caller repos
-│
+├── automation/
+│   └── run_automation.sh          # Entry point: installs deps and runs coordinator.py
+|
 ├── scripts/
 │   ├── coordinator.py             # Parses the MEI file, runs the scripts in order, writes back
 │   ├── script_collection.py       # Library of reusable MEI transformation functions
-│   ├── template_script.py         # Starting point for new scripts
 │   ├── utils.py                   # Shared helpers (XML utilities, GitHub summary output)
-│   ├── testing_scripts.py         # Local test harness
 │   └── requirements.txt           # Python dependencies installed in the runner
 │
 ├── work_packages.json             # Example/default work package definitions
 ├── work_package_template.json     # Annotated template for writing your own
 └── update_secrets.sh              # Helper for managing repository secrets
 ```
-
-<!-- ### Workflow versions
-
-`central.yml` is the workflow currently invoked by the caller template. `central_v2.yml` is an in-progress revision with a cleaner input schema (`work_package`, `parameters`) and is not yet wired up; once mei-friend's dispatch payload is updated to match, the caller template will be switched over.
-
---- -->
 
 ## How the coordinator works
 
@@ -71,6 +63,9 @@ automation/
 4. **Writes the result back** to the original file if `commitResult` is `true`, and appends a provenance entry to the MEI `<appInfo>` block. The surrounding workflow then commits the change to the caller repository.
 
 If any script raises a `RuntimeError`, execution stops immediately and no file is written.
+
+This setup allows scripts to build on each other and share a common parsing and writing mechanism, while keeping the individual transformation functions modular and reusable.
+It is not necessary to use a setup like this, any other structure is possible as long as the entry point script specified in the work package JSON can be invoked from the central repository.
 
 ---
 
@@ -151,12 +146,23 @@ Once a function exists, register it as a work package entry in your JSON file an
 
 ## Connecting a caller repository to this central repository
 
-Caller repositories created from the [caller template](https://github.com/mei-friend/caller-template) already point here. The relevant line in their `.github/workflows/caller.yml` is:
+Each work package configuration JSON specifies which central repository to use via three top-level fields:
 
-```yaml
-jobs:
-  call-shared:
-    uses: mei-friend/automation/.github/workflows/central.yml@main
+```json
+{
+  "central_repository": "mei-friend/automation",
+  "branch": "main",
+  "automation": "automation/run_automation.sh",
+  "work_packages": [...]
+}
 ```
 
-To use a different central repository, change that `uses:` line. See [Setting up your own central repository](https://mei-friend.github.io/docs/advanced/automation/#setting-up-your-own-central-repository) in the docs.
+| Field                | Purpose                                                            |
+| -------------------- | ------------------------------------------------------------------ |
+| `central_repository` | The `owner/repo` of the repository containing the automation logic |
+| `branch`             | The branch of that repository to check out                         |
+| `automation`         | Path to the entry-point shell script within that repository        |
+
+mei-friend reads these fields from the work package JSON and passes them as inputs when dispatching `caller.yml`. The caller workflow checks out the specified central repository and runs the script at the given path — no changes to `caller.yml` are needed to switch central repositories.
+
+To point to a different central repository (e.g. a project-specific one), update these three fields in the work package JSON. See [Setting up your own central repository](https://mei-friend.github.io/docs/advanced/automation/#setting-up-your-own-central-repository) in the docs.
