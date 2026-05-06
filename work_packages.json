@@ -1,5 +1,7 @@
 {
-  "central_repository": "mei-friend/automation/.github/workflows/central.yml@main",
+  "central_repository": "mei-friend/automation",
+  "branch": "main",
+  "automation": "automation/run_automation.sh",
   "work_packages": [
     {
       "id": "add_sbs",
