@@ -64,6 +64,15 @@
         "script_collection.add_sbs_every_n"
       ],
       "commitResult": true
+    },
+    {
+      "id": "invoke_runtime_error",
+      "label": "Erronous work package",
+      "description": "This workpackage produces a runtime error.",
+      "userFacing": true,
+      "params": {},
+      "scripts": ["script_collection.runtime_error"],
+      "commitResult": true
     }
   ]
 }
