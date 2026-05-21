@@ -78,13 +78,11 @@ def execute_workpackage(filepath: Path, workpackage: dict, params: dict):
         # scripts take active_dom:dict, context_dom:list[dict], params:dict
         try:
             script_result = current_func(active_dom, context_doms, **params)
-            if isinstance(script_result, tuple) and len(script_result) == 3:
-                active_dom, output_message_current, _summary_message = (
-                    script_result
-                )
+            if isinstance(script_result, tuple) and len(script_result) == 2:
+                active_dom, output_message_current = script_result
             else:
                 raise ValueError(
-                    f"Script {func_name} must return a tuple of length 3"
+                    f"Script {func_name} must return a tuple of length 2"
                 )
             output_message_total += (
                 f"Script {func_name} was successful"

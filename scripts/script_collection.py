@@ -35,9 +35,8 @@ def add_sbs_every_n(
 
     active_dom["dom"] = root
     output_message = ""
-    summary_message = ""
 
-    return active_dom, output_message, summary_message
+    return active_dom, output_message
 
 
 def remove_all_sbs(active_dom: dict, context_doms: list, **addargs):
@@ -61,9 +60,8 @@ def remove_all_sbs(active_dom: dict, context_doms: list, **addargs):
 
     active_dom["dom"] = root
     output_message = ""
-    summary_message = ""
 
-    return active_dom, output_message, summary_message
+    return active_dom, output_message
 
 
 def _template_function(active_dom: dict, context_doms: list, **addargs):
@@ -83,14 +81,13 @@ def _template_function(active_dom: dict, context_doms: list, **addargs):
 
     active_dom["dom"] = root
     output_message = ""
-    summary_message = ""
 
-    return active_dom, output_message, summary_message
+    return active_dom, output_message
 
 
 def runtime_error(active_dom: dict, context_doms: list, **addargs):
     """
-    template function
+    This funtion raises a RuntimeError which will be shown to the user in mei-friend as they used a wrong iinput parameter or the wrong work package for the given file.
 
     :param active_dom: dict containing {filename:Path/str?, dom:etree.Element}
     :type active_dom: dict
@@ -107,6 +104,5 @@ def runtime_error(active_dom: dict, context_doms: list, **addargs):
 
     active_dom["dom"] = root
     output_message = ""
-    summary_message = ""
 
-    return active_dom, output_message, summary_message
+    return active_dom, output_message
